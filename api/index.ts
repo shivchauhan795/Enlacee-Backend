@@ -13,7 +13,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 const mongourl = process.env.VERCEL_MONGO_URL as string;
-const frontendurl = process.env.VERCEL_FRONTEND_URL || 'http://localhost:5173';
+const frontendurl = process.env.VERCEL_FRONTEND_URL || 'https://enlacee.vercel.app' || 'http://localhost:5173';
 const client = new MongoClient(mongourl, {
     tls: true,  // Enable TLS
     tlsInsecure: true,  // Ensure certificates are validated
@@ -35,7 +35,7 @@ connectToDatabase();
 
 
 app.use(cors({
-    origin: frontendurl, // Specify your frontend domain
+    origin: '*', // Specify your frontend domain
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true // Allow cookies or other credentials to be sent
 }));
