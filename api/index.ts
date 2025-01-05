@@ -129,6 +129,51 @@ app.post("/login", async (request, response): Promise<void> => {
     }
 })
 
+// create short url
+app.post("/shorten", async (request, response): Promise<void> => {
+    const db = client.db(dbName);
+    const collection = db.collection('urls');
+    const url = {
+        longUrl: request.body.url,
+        shortUrl: request.body.text,
+    }
+
+    const shorturl = await collection.findOne({ shortUrl: request.body.text })
+    if (shorturl) {
+        response.status(409).send({
+            message: "Alias already exists",
+        });
+        return;
+    }
+
+    const result = await collection.insertOne(url);
+
+    const resultToBeSend = {
+        longUrl: request.body.url,
+        shortUrl: `${frontendurl}/${request.body.text}`
+    }
+    response.status(201).send({
+        message: "Url Created Successfully",
+        result,
+        url: resultToBeSend
+    });
+})
+
+// get long url
+app.get("/:shortUrl", async (req, res): Promise<void> => {
+    const db = client.db(dbName);
+    const collection = db.collection('urls');
+    const shortUrl = req.params.shortUrl;
+    const url = await collection.findOne({ shortUrl });
+    if (!url) {
+        res.status(404).send({
+            message: "Short URL not found"
+        });
+        return;
+    }
+    res.json({ longUrl: url.longUrl });
+});
+
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
